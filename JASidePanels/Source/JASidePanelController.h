@@ -122,6 +122,11 @@ typedef enum _JASidePanelState {
 // Determines whether showing panels can be controlled through pan gestures, or only through buttons
 @property (nonatomic) BOOL recognizesPanGesture; // default is YES
 
+// Determines how close to the edge of the center panel the pan gesture has to start to in order to show the side panels
+// If value is 0 then all pan start locations are valid
+@property (nonatomic) CGFloat validPanEdgeSize; // default is O
+
+
 #pragma mark - Menu Buttons
 
 // Gives you an image to use for your menu button. The image is three stacked white lines, similar to Path 2.0 or Facebook's menu button.

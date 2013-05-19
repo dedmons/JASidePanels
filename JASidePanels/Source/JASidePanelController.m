@@ -65,6 +65,7 @@ static char ja_kvoContext;
 @synthesize bouncePercentage = _bouncePercentage;
 @synthesize panningLimitedToTopViewController = _panningLimitedToTopViewController;
 @synthesize recognizesPanGesture = _recognizesPanGesture;
+@synthesize validPanEdgeSize = _validPanEdgeSize;
 @synthesize canUnloadRightPanel = _canUnloadRightPanel;
 @synthesize canUnloadLeftPanel = _canUnloadLeftPanel;
 @synthesize shouldResizeLeftPanel = _shouldResizeLeftPanel;
@@ -137,6 +138,7 @@ static char ja_kvoContext;
     self.maximumAnimationDuration = 0.2f;
     self.bounceDuration = 0.1f;
     self.bouncePercentage = 0.075f;
+    self.validPanEdgeSize = 0.0f;
     self.panningLimitedToTopViewController = YES;
     self.recognizesPanGesture = YES;
     self.allowLeftOverpan = YES;
@@ -449,6 +451,8 @@ static char ja_kvoContext;
     } else if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
         UIPanGestureRecognizer *pan = (UIPanGestureRecognizer *)gestureRecognizer;
         CGPoint translate = [pan translationInView:self.centerPanelContainer];
+        CGPoint location = [pan locationInView:self.centerPanelContainer];
+        
         // determine if right swipe is allowed
         if (translate.x < 0 && ! self.allowRightSwipe) {
             return NO;
@@ -457,6 +461,21 @@ static char ja_kvoContext;
         if (translate.x > 0 && ! self.allowLeftSwipe) {
             return NO;
         }
+        
+        // determin if swipe starts close enough to edge of center view
+        // if validPanEdgeSize is 0 dont check
+        if (self.validPanEdgeSize != 0) {
+            // determin if right swipe starts close enough to edge
+            if (location.x >= self.validPanEdgeSize) {
+                return NO;
+            }
+            // determin if left swipe starts close enough to edge
+            CGFloat centerViewWidth = self.centerPanelContainer.frame.size.width;
+            if (location.x <= centerViewWidth - self.validPanEdgeSize) {
+                return NO;
+            }
+        }
+        
         BOOL possible = translate.x != 0 && ((fabsf(translate.y) / fabsf(translate.x)) < 1.0f);
         if (possible && ((translate.x > 0 && self.leftPanel) || (translate.x < 0 && self.rightPanel))) {
             return YES;
